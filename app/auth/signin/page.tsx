@@ -68,7 +68,7 @@ export default function SignInPage() {
                             placeholder="you@example.com"
                         />
                     </div>
-                    
+
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-foreground/80 pl-1">Password</label>
                         <input
@@ -97,7 +97,7 @@ export default function SignInPage() {
                 </form>
 
                 <div className="mt-8 text-center text-sm text-foreground/60 border-t border-brown-light/20 pt-6">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link href="/auth/signup" className="text-gold font-semibold hover:underline">
                         Sign up for free
                     </Link>

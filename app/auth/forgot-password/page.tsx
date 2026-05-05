@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
                     </Link>
                     <Image unoptimized src="/logo.png" alt="LearnSth Logo" width={64} height={64} className="object-contain hover:scale-105 transition-transform" />
                     <h2 className="text-3xl font-bold text-white mt-6 text-center">Forgot Password?</h2>
-                    <p className="text-foreground/60 text-sm mt-2 text-center">Enter your email and we'll send you an OTP to reset your password.</p>
+                    <p className="text-foreground/60 text-sm mt-2 text-center">Enter your email and we&apos;ll send you an OTP to reset your password.</p>
                 </div>
 
                 {error && (
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
                         {loading && <Loader2 size={18} className="animate-spin" />}
                         {loading ? "Sending..." : "Send OTP"}
                     </button>
-                    
+
                     <div className="text-center mt-4">
                         <Link href="/auth/signin" className="text-gold text-sm hover:underline font-medium">
                             Return to Sign In

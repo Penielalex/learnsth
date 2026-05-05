@@ -70,7 +70,7 @@ function VerifyOtpContent() {
                     </Link>
                     <h2 className="text-3xl font-bold text-white mt-6">Verify OTP</h2>
                     <p className="text-foreground/60 text-sm mt-2 text-center">
-                        We've sent a 6-digit code to <br />
+                        We&apos;ve sent a 6-digit code to <br />
                         <span className="text-foreground font-medium">{email}</span>
                     </p>
                 </div>
@@ -113,8 +113,8 @@ function VerifyOtpContent() {
                 </form>
 
                 <div className="mt-8 text-center text-sm text-foreground/60 border-t border-brown-light/20 pt-6">
-                    Didn't receive the code?{" "}
-                    <button 
+                    Didn&apos;t receive the code?{" "}
+                    <button
                         onClick={handleResend}
                         disabled={resending || success}
                         className="text-gold font-semibold hover:underline disabled:opacity-50"
