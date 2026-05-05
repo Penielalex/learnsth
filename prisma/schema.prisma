@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  name          String?
+  emailVerified Boolean     @default(false)
+  image         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  goals         Goal[]
+  brainNotes    BrainNote[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  topics      Topic[]
+  hoursPerDay Int      @default(1)
+  category    String?
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  title       String
+  order       Int
+  goalId      String
+  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  notes       Note[]
+  resources   Resource[]
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BrainNote {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  category  String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
