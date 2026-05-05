@@ -79,11 +79,6 @@ export default function SignInPage() {
                             className="w-full bg-background/50 border border-brown-light/50 focus:border-gold rounded-xl px-4 py-3 outline-none transition-colors"
                             placeholder="••••••••"
                         />
-                        <div className="flex justify-end pr-1">
-                            <Link href="/auth/forgot-password" title="Forgot Password" className="text-xs text-gold hover:underline">
-                                Forgot Password?
-                            </Link>
-                        </div>
                     </div>
 
                     <button

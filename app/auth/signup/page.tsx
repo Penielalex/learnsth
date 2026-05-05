@@ -31,7 +31,8 @@ export default function SignUpPage() {
                 setError(signUpError.message || "Failed to sign up.");
                 setLoading(false);
             } else {
-                router.push(`/auth/verify-otp?email=${encodeURIComponent(email)}`);
+                router.push("/");
+                router.refresh();
             }
         } catch (err: any) {
             setError("An unexpected error occurred.");
@@ -81,7 +82,7 @@ export default function SignUpPage() {
                             placeholder="you@example.com"
                         />
                     </div>
-                    
+
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-foreground/80 pl-1">Password</label>
                         <input
