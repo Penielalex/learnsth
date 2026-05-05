@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -15,10 +16,10 @@ model User {
   image         String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  sessions      Session[]
   accounts      Account[]
-  goals         Goal[]
   brainNotes    BrainNote[]
+  goals         Goal[]
+  sessions      Session[]
 }
 
 model Session {
@@ -38,16 +39,16 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?   @db.Text
-  refreshToken          String?   @db.Text
-  idToken               String?   @db.Text
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Verification {
@@ -64,24 +65,24 @@ model Goal {
   title       String
   description String?
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  topics      Topic[]
   hoursPerDay Int      @default(1)
   category    String?
   isCompleted Boolean  @default(false)
   createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  topics      Topic[]
 }
 
 model Topic {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
   order       Int
   goalId      String
-  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  isCompleted Boolean    @default(false)
+  createdAt   DateTime   @default(now())
   notes       Note[]
   resources   Resource[]
-  isCompleted Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  goal        Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
 }
 
 model Resource {
@@ -89,17 +90,17 @@ model Resource {
   title     String
   url       String
   topicId   String
-  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }
 
 model Note {
   id        String   @id @default(cuid())
   content   String
   topicId   String
-  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }
 
 model BrainNote {
@@ -108,7 +109,7 @@ model BrainNote {
   content   String?
   category  String?
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
