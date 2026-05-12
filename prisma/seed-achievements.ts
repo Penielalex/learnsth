@@ -1,6 +1,7 @@
-const { PrismaClient } = require("@prisma/client");
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { PrismaClient: PrismaClientConstructor } = require("@prisma/client");
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClientConstructor();
 
 const ACHIEVEMENTS = [
   {
@@ -58,3 +59,5 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+export {};
