@@ -89,7 +89,7 @@ export default async function GamificationDashboard() {
               </div>
             ))}
             {weakTopics.length === 0 && (
-              <p className="text-sm text-foreground/40 italic">You're doing great! No weak areas identified.</p>
+              <p className="text-sm text-foreground/40 italic">You&apos;re doing great! No weak areas identified.</p>
             )}
           </div>
 
