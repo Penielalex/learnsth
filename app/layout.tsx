@@ -33,13 +33,22 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const session = await auth.api.getSession({ headers: headers() });
-    
-    // Fetch full user for gamification stats
-    const user = session?.user ? await prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { name: true, xp: true, level: true, currentStreak: true }
-    }) : null;
+    let session = null;
+    let user = null;
+
+    try {
+        // Wrap in try-catch to prevent app crash if Auth or DB is not ready
+        session = await auth.api.getSession({ headers: headers() });
+        
+        if (session?.user) {
+            user = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { name: true, xp: true, level: true, currentStreak: true }
+            });
+        }
+    } catch (error) {
+        console.error("[LAYOUT_ERROR] Failed to fetch session or user stats:", error);
+    }
 
     return (
         <html lang="en">
@@ -56,7 +65,7 @@ export default async function RootLayout({
                             <a href="/dashboard/gamification" className="text-sm font-medium hover:text-gold transition-colors">Mastery</a>
                             <AuthNavButtons 
                                 isAuthenticated={!!session} 
-                                userName={user?.name} 
+                                userName={user?.name || session?.user?.name} 
                                 level={user?.level}
                                 streak={user?.currentStreak}
                             />
