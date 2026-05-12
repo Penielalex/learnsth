@@ -5,7 +5,7 @@ import { generateLearningTopics } from "@/lib/gemini";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { awardXp } from "@/lib/gamification/xp-service";
+import { awardXp, revokeXp } from "@/lib/gamification/xp-service";
 import { updateStreak } from "@/lib/gamification/streak-service";
 import { checkAchievements } from "@/lib/gamification/achievement-service";
 
@@ -113,8 +113,15 @@ export async function createGoalAction(prevState: any, formData: FormData) {
 
 export async function deleteGoalAction(goalId: string) {
   try {
-    await validateAccess(goalId, "goal");
+    const userId = await validateAccess(goalId, "goal");
+    const goal = await prisma.goal.findUnique({ where: { id: goalId }, select: { title: true } });
+    
     await prisma.goal.delete({ where: { id: goalId } });
+    
+    if (goal) {
+      await revokeXp(userId, "GOAL_COMPLETE", `Deleted goal: ${goal.title}`);
+    }
+    
     revalidatePath("/");
     return { success: true };
   } catch (error: any) {
@@ -213,8 +220,15 @@ export async function updateBrainNoteContentAction(id: string, content: string) 
 
 export async function deleteBrainNoteAction(id: string) {
   try {
-    await validateAccess(id, "brainNote");
+    const userId = await validateAccess(id, "brainNote");
+    const note = await prisma.brainNote.findUnique({ where: { id }, select: { title: true } });
+    
     await prisma.brainNote.delete({ where: { id } });
+    
+    if (note) {
+      await revokeXp(userId, "BRAIN_NOTE_CREATE", `Deleted from Brain: ${note.title}`);
+    }
+    
     revalidatePath("/brain");
     return { success: true };
   } catch (error: any) {
@@ -262,8 +276,15 @@ export async function updateBrainSubtopicContentAction(id: string, content: stri
 
 export async function deleteBrainSubtopicAction(id: string) {
   try {
-    await validateAccess(id, "brainSubtopic");
+    const userId = await validateAccess(id, "brainSubtopic");
+    const subtopic = await prisma.brainSubtopic.findUnique({ where: { id }, select: { title: true } });
+    
     await prisma.brainSubtopic.delete({ where: { id } });
+    
+    if (subtopic) {
+      await revokeXp(userId, "NOTE_CREATE", `Deleted subtopic: ${subtopic.title}`);
+    }
+    
     revalidatePath(`/brain/[id]`, "page");
     return { success: true };
   } catch (error: any) {

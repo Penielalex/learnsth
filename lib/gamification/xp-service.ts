@@ -3,7 +3,15 @@ import { XP_VALUES, LEVEL_FORMULA, XpEventType } from "./constants";
 
 export async function awardXp(userId: string, type: XpEventType, description?: string) {
   const amount = XP_VALUES[type];
+  return await updateXp(userId, amount, type, description);
+}
 
+export async function revokeXp(userId: string, type: XpEventType, description?: string) {
+  const amount = -XP_VALUES[type];
+  return await updateXp(userId, amount, type, description);
+}
+
+async function updateXp(userId: string, amount: number, type: XpEventType, description?: string) {
   return await prisma.$transaction(async (tx) => {
     // 1. Create XP Event
     await tx.xpEvent.create({
@@ -23,17 +31,26 @@ export async function awardXp(userId: string, type: XpEventType, description?: s
       },
     });
 
-    // 3. Check for Level Up
-    const newLevel = LEVEL_FORMULA.calculateLevel(user.xp);
-    if (newLevel > user.level) {
+    // Ensure XP doesn't go below 0
+    if (user.xp < 0) {
+      await tx.user.update({
+        where: { id: userId },
+        data: { xp: 0 }
+      });
+    }
+
+    // 3. Recalculate Level
+    const newLevel = LEVEL_FORMULA.calculateLevel(Math.max(0, user.xp));
+    
+    // Update level if it changed (up or down)
+    if (newLevel !== user.level) {
       await tx.user.update({
         where: { id: userId },
         data: { level: newLevel },
       });
-      // Optional: Add level up notification/achievement here
     }
 
-    return { xpGained: amount, newTotalXp: user.xp, level: newLevel };
+    return { xpChanged: amount, newTotalXp: Math.max(0, user.xp), level: newLevel };
   });
 }
 
@@ -45,7 +62,7 @@ export function getLevelProgress(xp: number) {
   const progressInLevel = xp - xpForCurrentLevel;
   const xpNeededForLevel = xpForNextLevel - xpForCurrentLevel;
   
-  const percentage = Math.min(Math.round((progressInLevel / xpNeededForLevel) * 100), 100);
+  const percentage = Math.max(0, Math.min(Math.round((progressInLevel / xpNeededForLevel) * 100), 100));
   
   return {
     currentLevel,

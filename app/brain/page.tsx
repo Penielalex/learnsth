@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { Brain, PlusCircle } from "lucide-react";
 import BrainCreateForm from "@/app/components/BrainCreateForm";
+import BrainNoteDeleteButton from "@/app/components/BrainNoteDeleteButton";
 import SearchInput from "@/app/components/SearchInput";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -83,23 +84,25 @@ export default async function BrainPage({ searchParams }: { searchParams: { cate
 
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {notes.map((note) => (
-                    <Link
-                        key={note.id}
-                        href={`/brain/${note.id}`}
-                        className="block p-6 rounded-xl bg-brown-light/30 border border-brown-light hover:border-gold/50 transition-all group"
-                    >
-                        <h3 className="text-xl font-semibold mb-2 group-hover:text-gold transition-colors pr-8">
-                            {note.title}
-                        </h3>
-                        {note.category && (
-                            <span className="inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 rounded bg-gold/20 text-gold border border-gold/30 uppercase tracking-wider">
-                                {note.category}
-                            </span>
-                        )}
-                        <p className="mt-4 text-xs text-foreground/40">
-                            {new Date(note.createdAt).toLocaleDateString()}
-                        </p>
-                    </Link>
+                    <div key={note.id} className="relative">
+                        <Link
+                            href={`/brain/${note.id}`}
+                            className="block p-6 rounded-xl bg-brown-light/30 border border-brown-light hover:border-gold/50 transition-all group h-full"
+                        >
+                            <h3 className="text-xl font-semibold mb-2 group-hover:text-gold transition-colors pr-8">
+                                {note.title}
+                            </h3>
+                            {note.category && (
+                                <span className="inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 rounded bg-gold/20 text-gold border border-gold/30 uppercase tracking-wider">
+                                    {note.category}
+                                </span>
+                            )}
+                            <p className="mt-4 text-xs text-foreground/40">
+                                {new Date(note.createdAt).toLocaleDateString()}
+                            </p>
+                        </Link>
+                        <BrainNoteDeleteButton id={note.id} />
+                    </div>
                 ))}
 
                 {notes.length === 0 && (

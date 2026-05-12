@@ -4,6 +4,7 @@ import { ChevronLeft, Calendar } from "lucide-react";
 import { notFound } from "next/navigation";
 import BrainNoteClient from "@/app/components/BrainNoteClient";
 import BrainSubtopicList from "@/app/components/BrainSubtopicList";
+import BrainNoteDeleteButton from "@/app/components/BrainNoteDeleteButton";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -48,6 +49,9 @@ export default async function BrainNoteDetail({ params }: { params: { id: string
                                 </span>
                             )}
                         </div>
+                    </div>
+                    <div className="relative">
+                        <BrainNoteDeleteButton id={note.id} />
                     </div>
                 </div>
             </div>
