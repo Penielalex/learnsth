@@ -3,16 +3,29 @@ import Link from "next/link";
 import { ChevronLeft, Calendar } from "lucide-react";
 import { notFound } from "next/navigation";
 import BrainNoteClient from "@/app/components/BrainNoteClient";
+import BrainSubtopicList from "@/app/components/BrainSubtopicList";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function BrainNoteDetail({ params }: { params: { id: string } }) {
+    const session = await auth.api.getSession({ headers: headers() });
+    const userId = session?.user?.id;
+
+    if (!userId) return notFound();
+
     const note = await prisma.brainNote.findUnique({
-        where: { id: params.id }
+        where: { id: params.id },
+        include: {
+            subtopics: {
+                orderBy: { createdAt: "asc" }
+            }
+        }
     });
 
-    if (!note) return notFound();
+    if (!note || note.userId !== userId) return notFound();
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8 pb-20">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <Link href="/brain" className="inline-flex items-center gap-2 text-foreground/60 hover:text-gold transition-colors">
                     <ChevronLeft size={20} />
@@ -39,9 +52,14 @@ export default async function BrainNoteDetail({ params }: { params: { id: string
                 </div>
             </div>
 
-            <div className="bg-brown-light/10 border border-brown-light/30 rounded-xl overflow-hidden shadow-lg">
-                <BrainNoteClient noteId={note.id} initialContent={note.content || ""} />
+            <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest ml-1">General Overview</label>
+                <div className="bg-brown-light/10 border border-brown-light/30 rounded-xl overflow-hidden shadow-lg">
+                    <BrainNoteClient noteId={note.id} initialContent={note.content || ""} />
+                </div>
             </div>
+
+            <BrainSubtopicList brainNoteId={note.id} initialSubtopics={note.subtopics} />
         </div>
     );
 }

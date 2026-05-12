@@ -16,10 +16,55 @@ model User {
   image         String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  
+  // Gamification
+  xp            Int         @default(0)
+  level         Int         @default(1)
+  currentStreak Int         @default(0)
+  longestStreak Int         @default(0)
+  lastActive    DateTime?
+  streakFreezeCount Int       @default(0)
+  
   accounts      Account[]
   brainNotes    BrainNote[]
   goals         Goal[]
   sessions      Session[]
+  xpEvents      XpEvent[]
+  achievements  UserAchievement[]
+}
+
+model XpEvent {
+  id          String   @id @default(cuid())
+  amount      Int
+  type        String   // e.g., "TOPIC_COMPLETE", "GOAL_COMPLETE", "NOTE_CREATE"
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g., "FIRST_TOPIC", "WEEK_STREAK"
+  title       String
+  description String
+  icon        String?
+  xpReward    Int      @default(0)
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
 }
 
 model Session {
@@ -112,4 +157,15 @@ model BrainNote {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
+  subtopics BrainSubtopic[]
+}
+
+model BrainSubtopic {
+  id          String    @id @default(cuid())
+  title       String
+  content     String?
+  brainNoteId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  brainNote   BrainNote @relation(fields: [brainNoteId], references: [id], onDelete: Cascade)
 }

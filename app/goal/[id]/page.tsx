@@ -4,8 +4,15 @@ import Link from "next/link";
 import { ChevronLeft, Calendar } from "lucide-react";
 import TopicClient from "./TopicClient";
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function GoalDetail({ params }: { params: { id: string } }) {
+    const session = await auth.api.getSession({ headers: headers() });
+    const userId = session?.user?.id;
+
+    if (!userId) return notFound();
+
     type GoalWithTopics = Prisma.GoalGetPayload<{
         include: {
             topics: {
@@ -30,7 +37,7 @@ export default async function GoalDetail({ params }: { params: { id: string } })
         } as any,
     }) as GoalWithTopics | null;
 
-    if (!goal) return notFound();
+    if (!goal || goal.userId !== userId) return notFound();
 
     const totalTopics = goal.topics.length;
     const completedCount = goal.topics.filter(t => t.isCompleted).length;
